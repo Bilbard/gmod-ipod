@@ -1,0 +1,66 @@
+@name Click Wheel
+@inputs EGP:wirelink User:entity Active
+@outputs Up Down Menu FF RW Play Cn Cursor:vector2
+@persist 
+@trigger 
+if(duped()|dupefinished()){reset()}
+if(first()){
+    EGP:egpClear()
+    Debug=0
+    EGP:egpBox(1,vec2(0,0),vec2(1024,1024))
+    EGP:egpCircle(2,vec2(256,256),vec2(256,256))
+    EGP:egpCircle(3,vec2(256,256),vec2(88,88))
+    EGP:egpColor(2,vec(200,200,200))
+    EGP:egpColor(3,vec(255,255,255))
+    EGP:egpText(4,"Menu",vec2(195,22))
+    EGP:egpSize(4,50)
+    EGP:egpTriangle(5,vec2(436,240),vec2(436,272),vec2(460,256))
+    EGP:egpTriangle(6,vec2(459,240),vec2(459,272),vec2(483,256))
+    EGP:egpBox(7,vec2(488,256),vec2(8,32))
+    EGP:egpTriangle(8,vec2(76,240),vec2(76,272),vec2(52,256))
+    EGP:egpTriangle(9,vec2(53,240),vec2(53,272),vec2(29,256))
+    EGP:egpBox(10,vec2(24,256),vec2(8,32))
+    EGP:egpTriangle(11,vec2(224,448),vec2(224,480),vec2(252,464))
+    EGP:egpBox(12,vec2(268,464),vec2(8,32))
+    EGP:egpBox(13,vec2(283,464),vec2(8,32))
+    if(Debug){
+        EGP:egpBox(14,vec2(434,256),vec2(128,128))
+        EGP:egpColor(14,vec())
+        EGP:egpBox(15,vec2(78,256),vec2(128,128))
+        EGP:egpColor(15,vec())
+        EGP:egpBox(16,vec2(256,434),vec2(128,128))
+        EGP:egpColor(16,vec())
+        EGP:egpBox(17,vec2(256,78),vec2(128,128))
+        EGP:egpColor(17,vec())
+        EGP:egpBox(18,vec2(256,256),vec2(128,128))
+        EGP:egpColor(18,vec())
+    }
+    #EGP:egpCircle(19,vec2(0,0),vec2(32,32))
+    #EGP:egpParentToCursor(19)
+}
+if(Active){
+    Cursor = EGP:egpCursor(User)
+    #predefined coords make this faster, but is ugly.
+    if(inrange(Cursor,vec2(192,192),vec2(320,320))){
+        #Center
+        Cn=1
+    }elseif(inrange(Cursor,vec2(192,14),vec2(320,142))){
+        #Menu
+        Menu=1
+    }elseif(inrange(Cursor,vec2(14,192),vec2(142,320))){
+        #Rewind
+        RW=1
+    }elseif(inrange(Cursor,vec2(320,192),vec2(498,320))){
+        #Fast Forward
+        FF=1
+    }elseif(inrange(Cursor,vec2(192,320),vec2(320,448))){
+        #Play
+        Play=1
+    }else{
+        Cn=0
+        Menu=0
+        FF=0
+        RW=0
+        Play=0
+    }
+}

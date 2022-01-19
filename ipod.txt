@@ -1,0 +1,302 @@
+@name ipod
+@inputs EGP:wirelink Up Down Menu FF RW PP Select RadioPlayed RadioLength Ref Lk
+@outputs Test MenCount Active SongPlay SongURL:string SongVol MenuType:string SelMen SongStat
+@persist MenuList:table Sel SelMen LastMenu:array MenCount MenuType:string ActiveC Shift PlayStat StoreSong:array MinsPlayed
+@trigger 
+runOnTick(1)
+function drawCaseHolos(){
+    Base=entity():isWeldedTo()
+}
+function drawFunyLogo(){
+    EGP:egpBox(1,vec2(256,256),vec2(512,512)) #backdrop
+    EGP:egpColor(1,vec(220,220,220))
+    EGP:egpCircle(2,vec2(236,256),vec2(35,50))
+    EGP:egpAngle(2,8)
+    EGP:egpColor(2,vec())
+    EGP:egpCircle(3,vec2(276,256),vec2(35,50))
+    EGP:egpAngle(3,-8)
+    EGP:egpColor(3,vec())
+    EGP:egpCircle(4,vec2(316,256),vec2(25,25))
+    EGP:egpColor(4,vec(220,220,220))
+    EGP:egpCircle(5,vec2(262,190),vec2(10,20))
+    EGP:egpColor(5,vec())
+    EGP:egpAngle(5,-35)
+    if(hostname():find("NeoTek")){
+        EGP:egpText(6,"Fuck you, NeoTek.",vec2(90,415))
+        EGP:egpSize(6,50)
+        EGP:egpColor(6,vec())
+    }
+    #More specifically, fuck SilverMight, namm360, Rai, Hotel, linklegend, Jerry, and Ryankz11. This is in spite of all of you assholes, especially you, you bitch.
+}
+function drawBack() {
+    EGP:egpBox(1,vec2(256,256),vec2(512,512)) #backdrop
+    EGP:egpColor(1,vec(220,220,220))
+    EGP:egpBox(2,vec2(250,65),vec2(512,7))
+    EGP:egpColor(2,vec())
+    EGP:egpText(3,"iPod",vec2(215,10))
+    EGP:egpSize(3,45)
+    EGP:egpColor(3,vec())
+    EGP:egpBoxOutline(4,vec2(450,33),vec2(65,35))
+    EGP:egpSize(4,3)
+    EGP:egpColor(4,vec())
+    EGP:egpBox(5,vec2(428,33),vec2(10,25))
+    EGP:egpColor(5,vec())
+    EGP:egpBox(6,vec2(442,33),vec2(10,25))
+    EGP:egpColor(6,vec())
+    EGP:egpBox(7,vec2(456,33),vec2(10,25))
+    EGP:egpColor(7,vec())
+    EGP:egpBox(8,vec2(470,33),vec2(10,25))
+    EGP:egpColor(8,vec())
+    EGP:egpBox(9,vec2(485,33),vec2(7,13))
+    EGP:egpColor(9,vec())
+}
+function drawPlayStatus(Playing, Lock){
+    if (Playing==1){
+        EGP:egpTriangle(10,vec2(50,33),vec2(30,15),vec2(30,48))
+        EGP:egpColor(10,vec())
+        EGP:egpColor(11,vec4(0,0,0,0))
+    } else {
+        EGP:egpBox(10,vec2(50,33),vec2(12,30))
+        EGP:egpBox(11,vec2(30,33),vec2(12,30))
+        EGP:egpColor(10,vec())
+        EGP:egpColor(11,vec4(0,0,0,255))
+    } 
+    if (Lock){
+        EGP:egpBox(12,vec2(15,15),vec2(32,32))
+        EGP:egpColor(12,vec())
+    }else{
+        EGP:egpBox(12,vec2(16,16),vec2(32,32))
+        EGP:egpColor(12,vec4(0,0,0,0))
+    }
+}
+function drawNowPlaying(Name:string,Duration,Played,Artist:string){
+    FancyTimePlayedT=floor(Played/60)
+    FancyTimePlayedT2=round((Played-(FancyTimePlayedT*60))):toString()
+    if(FancyTimePlayedT2:length()<2){FancyTimePlayedT2="0"+FancyTimePlayedT2}
+    FancyTimePlayedString=(FancyTimePlayedT):toString()+":"+FancyTimePlayedT2
+    
+    
+    FancyTimeRemainingT=round(Duration/60)
+    FancyTimeRemainingString=(FancyTimeRemainingT):toString()+":"+round((Duration-(60*FancyTimeRemainingT))):toString()
+    
+    EGP:egpText(13,Name,vec2(256-(Name:length()*10),190))
+    EGP:egpColor(13,vec())
+    EGP:egpSize(13,45)
+    EGP:egpText(14,Artist,vec2(256-(Artist:length()*10),255))
+    EGP:egpColor(14,vec())
+    EGP:egpSize(14,45)
+    #EGP:egpText(14,Album,vec2(256-(Album:length()*10),270))
+    #EGP:egpColor(14,vec())
+    #EGP:egpSize(14,45)
+    
+    EGP:egpBoxOutline(15,vec2(256,350),vec2(384,45))
+    EGP:egpColor(15,vec())
+    EGP:egpSize(15,7)
+    
+    EGP:egpText(16,FancyTimePlayedString,vec2(55,375))
+    EGP:egpSize(16,45)
+    EGP:egpColor(16,vec())
+    
+    EGP:egpText(17,FancyTimeRemainingString,vec2(355,375))
+    EGP:egpSize(17,45)
+    EGP:egpColor(17,vec())
+    
+    
+    EGP:egpLine(18,vec2(75,350),vec2((Played/Duration)*362+75,350))
+    EGP:egpColor(18,vec())
+    EGP:egpSize(18,25)
+    
+}
+
+function drawMenu(BarCount,Selected,Shift,BarObjects:array,BarTypes:array){
+    I2=0
+    #if (BarCount>6){Scroll=1}else{Scroll=0}
+    for (I=1,6){
+        I2+=4
+        if (Selected==I){Try=1}else{Try=0}
+        EGP:egpBox(12+(I2),vec2(250,70*I+30),vec2(512,60))
+        EGP:egpColor(12+(I2),vec(220-(Try*220),220-(Try*220),220-(Try*220)))
+        EGP:egpText(12+(I2-1),BarObjects[I+Shift,string],vec2(20,(70*I+5)))
+        EGP:egpColor(12+(I2-1),vec(Try*220,Try*220,Try*220))
+        EGP:egpSize(12+(I2-1),45)
+        
+        if (BarTypes[I+Shift,number]==1){
+            EGP:egpBox(12+(I2-2),vec2(480,(70*I+25)),vec2(7,17))
+            EGP:egpColor(12+(I2-2),vec(Try*220,Try*220,Try*220))
+            EGP:egpAngle(12+(I2-2),45)
+            EGP:egpBox(12+(I2-3),vec2(480,(70*I+35)),vec2(7,17))
+            EGP:egpColor(12+(I2-3),vec(Try*220,Try*220,Try*220))
+            EGP:egpAngle(12+(I2-3),-45)
+        }
+    }
+}
+if(duped()){reset()}
+if(first()){
+    #for snoops, order is Hotel, SilverMight, namm360, Jerry, Rai, Jack, Ryankz11. Don't remove this check if you plan to redistribute.
+    if(owner():steamID()=="STEAM_0:0:143043488" | owner():steamID()=="STEAM_0:1:86505459" | owner():steamID()=="STEAM_0:0:63503124" | owner():steamID()=="STEAM_0:1:100145930" | owner():steamID()=="STEAM_0:0:59356028" | owner():steamID()=="STEAM_0:0:157151136" | owner():steamID()=="STEAM_0:1:22268850"){
+        selfDestructAll()
+    }
+    MenuList=table(
+        #main page
+        array("Playlists","Artists","Songs","Settings","About","Now Playing"),
+        array(1,1,1,1,1,1),
+        array(1,11,1,1,6,-1),
+        "NA",
+        array(),
+        
+        #about + tribute
+        array("Name:              gPod BETA","Ver:                               0.4","Made by:              the gabe","mfw ipod with dpad","       (SM) 2021-2022"),
+        array(0,0,0,0,0),
+        array(4,4,4,4,4),
+        "NA",
+        array("","","","",""),
+        
+        #artist section
+        array("Misc Artists"),
+        array(1),
+        array(16),
+        "artist",
+        array(),
+        
+        
+        
+        #test artist
+        array("Bring It on Home to Me","Southern Nights","Billie Jean","Through The Never","Nothing Else Matters","Leper Messiah","Way Back Home","P.Y.T","Pistol Packin' Mama","Keep A Knockin'","64 bits",
+        "Sixty Minute Man","Butcher Pete","Undecided","Cadillac","Garden Grove","Rhythm of the Night"),
+        array(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+        array(-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1),
+        "song",
+        array("https://www.dropbox.com/s/gxatykbh999m097/05%20Bring%20It%20on%20Home%20to%20Me.mp3?dl=1",
+        "https://www.dropbox.com/s/cbmg72x3rhue58a/06%20Southern%20Nights.mp3?dl=1",
+        "https://www.dropbox.com/s/7t78kgelej9w550/06%20Billie%20Jean.mp3?dl=1",
+        "https://www.dropbox.com/s/efyqrdy4slu1wr8/07%20Through%20the%20Never.mp3?dl=1",
+        "https://www.dropbox.com/s/mpifvjwh3ipp3yf/08%20Nothing%20Else%20Matters.mp3?dl=1",
+        "https://www.dropbox.com/s/d4qmhxjcwk07r46/06%20Leper%20Messiah.mp3?dl=1",
+        "https://www.dropbox.com/s/vj5y9orcthsebxy/Way%20Back%20Home.mp3?dl=1",
+        "https://www.dropbox.com/s/btzuwpm83v4mca9/08%20P.Y.T..mp3?dl=1",
+        "https://www.dropbox.com/s/3nkakiqhivbtpd2/Pistol%20Packin%27%20Mama.mp3?dl=1",
+        "https://www.dropbox.com/s/ngpzdelmcrmu8e4/Keep%20A-Knockin%27.mp3?dl=1",
+        "https://www.dropbox.com/s/7hcv0x06x76pbqm/64%20bits.mp3?dl=1",
+        "https://www.dropbox.com/s/vau69rf29vrr9wy/Sixty%20Minute%20Man.mp3?dl=1",
+        "https://www.dropbox.com/s/ek8it2lze9fi4h2/Butcher%20Pete.mp3?dl=1",
+        "https://www.dropbox.com/s/gg1hk2jgs9w19em/Undecided.mp3?dl=1",
+        "https://www.dropbox.com/s/idzufud76g5m9ok/MORGENSHTERN_and_Eldzhey_-_Cadillac.mp3?dl=1",
+        "https://www.dropbox.com/s/rqirrh8dabl79a8/Sublime%20-%20Garden%20Grove.mp3?dl=1",
+        "https://www.dropbox.com/s/uz3jmmwa2qjjd8s/Corona%20-%20The%20Rhythm%20of%20the%20Night%20%28Official%20Music%20Video%29.mp3?dl=1")
+    )
+    EGP:egpClear()
+    drawFunyLogo()
+    timer("dothemenushit",2500)
+    Sel=1
+    SelMen=1
+    MenCount=0
+    MenuType="trad"
+    Active=0
+    Shift=0
+    PlayStat=0
+    StoreSong=array("..","..","..")
+    MinsPlayed=0
+}
+#if(PlayStat==0|PlayStat==1){SongPlay=PlayStat}
+if (clk("dothemenushit")){
+    drawBack()
+    drawPlayStatus(PlayStat, Lk)
+    Active=1
+    ActiveC=1
+}
+if (~Up | ~Down | ~Select | ~Menu | ~PP | ~Ref | ActiveC | ~Lk){
+    if (ActiveC){ActiveC=0}
+    if (PP==1){
+        PlayStat+=1
+        if (PlayStat>1){PlayStat=0}
+        drawPlayStatus(PlayStat, Lk)
+        SongPlay=PlayStat
+    }
+    if (Up==1&Sel>1){
+        if(Sel==2&Shift>0){Shift-=1}elseif(Sel>0){Sel-=1}
+    }
+    if(Lk){
+       drawPlayStatus(PlayStat, Lk)
+    } 
+    if (Down==1&Sel<MenuList[SelMen,array]:count()){
+        if(Sel==6&Shift<MenuList[SelMen,array]:count()-6){Shift+=1}elseif(Sel<6){Sel+=1}
+    }
+    if (Select==1&!first()){
+        if (MenuList[SelMen+2,array][Sel,number]==-1){
+            EGP:egpClear()
+            MenuType="nowplaying"
+            #track name, track album, track artist
+            #StoreSong=array(MenuList[SelMen,array][Sel,string],"2","3")
+            drawBack()
+            SongURL=MenuList[SelMen+4,array][Sel+Shift,string]
+            SongVol=0
+            PlayStat=0
+            drawPlayStatus(PlayStat, Lk)
+            MinsPlayed=0
+            timer("dofunyplay",100)
+        }
+        elseif (MenuList[SelMen+2,array][Sel,number]!=0){
+            if (SelMen!=LastMenu[LastMenu:count(),number]){
+                MenCount+=1
+                LastMenu:insertNumber(MenCount,SelMen)
+            }
+            
+            if (MenuList[SelMen+3,string]!="NA"){
+                if (MenuList[SelMen+3,string]=="artist"){
+                    StoreSong[2,string]=MenuList[SelMen,array][Sel,string]
+                }
+                if (MenuList[SelMen+3,string]=="song"){
+                    StoreSong[1,string]=MenuList[SelMen,array][Sel,string]
+                }
+            }  
+            
+            SelMen=MenuList[SelMen+2,array][Sel,number]
+            if (SelMen==0){SelMen=1}
+            EGP:egpClear()
+            drawBack()
+            drawPlayStatus(PlayStat, Lk)
+            Sel=1
+            Shift=0
+        }
+    }
+    if (Menu==1&!first()&MenCount!=0){
+        SelMen=LastMenu[MenCount,number]
+        LastMenu:pop()
+        MenCount-=1
+        EGP:egpClear()
+        drawBack()
+        drawPlayStatus(PlayStat, Lk)
+        Sel=1
+        Shift=0
+        MenuType="trad"
+    }elseif(Menu==1&MenuType=="nowplaying"){
+        SelMen=1
+        EGP:egpClear()
+        drawBack()
+        drawPlayStatus(PlayStat, Lk)
+        Sel=1
+        Shift=0
+        MenuType="trad"
+    }
+    if (MenuType=="trad"){
+        drawMenu(MenuList[SelMen,array]:count(),Sel,Shift,MenuList[SelMen,array],MenuList[SelMen+1,array])
+    }
+    elseif (MenuType=="nowplaying"){
+        if (PlayStat==1){timer("redrawnowplaying",100)}
+        drawPlayStatus(PlayStat, Lk)
+        drawBack()
+        drawNowPlaying(StoreSong[1,string],RadioLength,RadioPlayed,StoreSong[2,string])
+    }
+    if (clk("dothefunyplay")){
+        PlayStat=1
+        SongPlay=1
+        }
+    if (clk("redrawnowplaying")){
+        if (MenuType=="nowplaying"){
+           drawNowPlaying(StoreSong[1,string],RadioLength,RadioPlayed,StoreSong[2,string])
+            timer("redrawnowplaying",100)
+        }
+    }
+     
+    
+}
