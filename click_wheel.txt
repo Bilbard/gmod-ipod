@@ -34,9 +34,9 @@ if(first()){
         EGP:egpColor(17,vec())
         EGP:egpBox(18,vec2(256,256),vec2(128,128))
         EGP:egpColor(18,vec())
+        EGP:egpCircle(19,vec2(0,0),vec2(32,32))
+        EGP:egpParentToCursor(19)
     }
-    #EGP:egpCircle(19,vec2(0,0),vec2(32,32))
-    #EGP:egpParentToCursor(19)
 }
 if(Active){
     Cursor = EGP:egpCursor(User)
