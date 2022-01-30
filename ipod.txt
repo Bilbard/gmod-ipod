@@ -1,8 +1,10 @@
 @name ipod
-@inputs EGP:wirelink Up Down Menu FF RW PP Select RadioPlayed RadioLength Ref Lk Loading LoadInfo:array
-@outputs Test MenCount Active SongPlay SongURL:string SongVol MenuType:string SelMen SongStat LockLatch SongPause 
-@persist MenuList:table Sel SelMen LastMenu:array MenCount MenuType:string ActiveC Shift PlayStat StoreSong:array MinsPlayed CaseCol:vector MenColInv MenuCol:vector
+@inputs EGP:wirelink Up Down Menu FF RW PP Select RadioPlayed RadioLength Ref Lk Loading LoadInfo:array RadioEnded
+@outputs Test MenCount Active SongPlay SongURL:string SongVol MenuType:string SelMen SongStat LockLatch SongPause LastMenu:array NPFunc SongPos NameScrollOffset
+@persist MenuList:table Sel SelMen LastMenu:array MenCount MenuType:string ActiveC Shift PlayStat StoreSong:array 
+@persist MinsPlayed CaseCol:vector MenColInv MenuCol:vector NameScrollOffset ArtistScrollOffset AlbumScrollOffset NSOB ASOB ALSOB GlobalFont:string NPFunc
 @trigger 
+#include "ipoddata"
 runOnTick(1)
 function drawCaseHolos(){
     Base=entity():isWeldedTo()
@@ -23,6 +25,7 @@ function drawFunyLogo(){
     EGP:egpAngle(5,-35)
     if(hostname():find("NeoTek")){
         EGP:egpText(6,"Fuck you, NeoTek.",vec2(90,415))
+        EGP:egpFont(6,GlobalFont)
         EGP:egpSize(6,50)
         EGP:egpColor(6,vec())
     }
@@ -31,9 +34,10 @@ function drawFunyLogo(){
 function drawBack() {
     EGP:egpBox(1,vec2(256,256),vec2(512,512)) #backdrop
     EGP:egpColor(1,MenuCol)
-    EGP:egpBox(2,vec2(250,65),vec2(512,7))
+    EGP:egpBox(2,vec2(256,65),vec2(512,7))
     EGP:egpColor(2,vec(MenColInv*255,MenColInv*255,MenColInv*255))
     EGP:egpText(3,"iPod",vec2(215,10))
+    EGP:egpFont(3,GlobalFont)
     EGP:egpSize(3,45)
     EGP:egpColor(3,vec(MenColInv*255,MenColInv*255,MenColInv*255))
     EGP:egpBoxOutline(4,vec2(450,33),vec2(65,35))
@@ -74,7 +78,13 @@ function drawLock(){
         EGP:egpCircleOutline(13,vec2(0,0),vec2(0,0))
     }
 }
-function drawNowPlaying(Name:string,Duration,Played,Artist:string,Album:string){
+function drawNowPlaying(Name:string,Duration,Played,Artist:string,Album:string,Mode){
+    if(Name:length()>23&NSOB==0){NSOB=1}else{NSOB=0}
+    if(NSOB!=0){
+        NameScrollOffset+=22*NSOB
+        if(NameScrollOffset/22>5){NSOB=-1}
+        #elseif(NameScrollOffset<(Name:length()-23)/3){NSOB=-1}
+    }
     FancyTimePlayedT=floor(Played/60)#mins
     FancyTimePlayedT2=round((Played-(FancyTimePlayedT*60))):toString()#seconds
     if(FancyTimePlayedT2:length()<2){FancyTimePlayedT2="0"+FancyTimePlayedT2}
@@ -83,14 +93,18 @@ function drawNowPlaying(Name:string,Duration,Played,Artist:string,Album:string){
     
     FancyTimeRemainingT=floor(Duration/60)
     FancyTimeRemainingString=(FancyTimeRemainingT):toString()+":"+round((Duration-(60*FancyTimeRemainingT))):toString()
+    if(FancyTimeRemainingString:index(1)=="-"){FancyTimeRemainingString="0:00"}
     
-    EGP:egpText(14,Name,vec2(256-(Name:length()*10),140))
+    EGP:egpText(14,Name,vec2(256+(NameScrollOffset),140))
+    EGP:egpFont(14,GlobalFont)
     EGP:egpColor(14,vec(MenColInv*255,MenColInv*255,MenColInv*255))
     EGP:egpSize(14,45)
     EGP:egpText(15,Artist,vec2(256-(Artist:length()*10),205))
+    EGP:egpFont(15,GlobalFont)
     EGP:egpColor(15,vec(MenColInv*255,MenColInv*255,MenColInv*255))
     EGP:egpSize(15,45)
     EGP:egpText(16,Album,vec2(256-(Album:length()*10),270))
+    EGP:egpFont(16,GlobalFont)
     EGP:egpColor(16,vec(MenColInv*255,MenColInv*255,MenColInv*255))
     EGP:egpSize(16,45)
 
@@ -98,18 +112,36 @@ function drawNowPlaying(Name:string,Duration,Played,Artist:string,Album:string){
     EGP:egpColor(17,vec(MenColInv*255,MenColInv*255,MenColInv*255))
     EGP:egpSize(17,7)
     
-    EGP:egpText(18,FancyTimePlayedString,vec2(55,375))
-    EGP:egpSize(18,45)
-    EGP:egpColor(18,vec(MenColInv*255,MenColInv*255,MenColInv*255))
+    if (!Mode){
+        EGP:egpText(18,FancyTimePlayedString,vec2(65,375))
+        EGP:egpFont(18,GlobalFont)
+        EGP:egpSize(18,45)
+        EGP:egpColor(18,vec(MenColInv*255,MenColInv*255,MenColInv*255))
     
-    EGP:egpText(19,FancyTimeRemainingString,vec2(355,375))
-    EGP:egpSize(19,45)
-    EGP:egpColor(19,vec(MenColInv*255,MenColInv*255,MenColInv*255))
+        EGP:egpText(19,FancyTimeRemainingString,vec2(360,375))
+        EGP:egpFont(19,GlobalFont)
+        EGP:egpSize(19,45)
+        EGP:egpColor(19,vec(MenColInv*255,MenColInv*255,MenColInv*255))
     
     
-    EGP:egpLine(20,vec2(75,350),vec2((Played/Duration)*362+75,350))
-    EGP:egpColor(20,vec(MenColInv*255,MenColInv*255,MenColInv*255))
-    EGP:egpSize(20,25)
+        EGP:egpLine(20,vec2(75,350),vec2((Played/Duration)*362+75,350))
+        EGP:egpColor(20,vec(MenColInv*255,MenColInv*255,MenColInv*255))
+        EGP:egpSize(20,25)
+    }else{
+        EGP:egpText(18,"Volume",vec2(65,375))
+        EGP:egpFont(18,GlobalFont)
+        EGP:egpSize(18,45)
+        EGP:egpColor(18,vec(MenColInv*255,MenColInv*255,MenColInv*255))
+    
+        EGP:egpText(19,round(SongVol*100)+"%",vec2(360,375))
+        EGP:egpFont(19,GlobalFont)
+        EGP:egpSize(19,45)
+        EGP:egpColor(19,vec(MenColInv*255,MenColInv*255,MenColInv*255))
+        
+        EGP:egpLine(20,vec2(75,350),vec2((SongVol)*362+75,350))
+        EGP:egpColor(20,vec(MenColInv*255,MenColInv*255,MenColInv*255))
+        EGP:egpSize(20,25)
+    }
     
 }
 
@@ -120,84 +152,36 @@ function drawMenu(BarCount,Selected,Shift,BarObjects:array,BarTypes:array){
         I2+=4
         if (Selected==I){Try=1}else{Try=0}
         if (MenColInv){MCI=0}else{MCI=1}
-        EGP:egpBox(13+(I2),vec2(250,70*I+30),vec2(512,60))
+        EGP:egpBox(13+(I2),vec2(256,70*I+30),vec2(512,60))
         EGP:egpColor(13+(I2),vec(MenuCol:x()-((Try-MenColInv)*MenuCol:x()), MenuCol:y()-((Try-MenColInv)*MenuCol:y()), MenuCol:z()-((Try-MenColInv)*MenuCol:z())))
         EGP:egpText(13+(I2-1),BarObjects[I+Shift,string],vec2(20,(70*I+5)))
+        EGP:egpFont(13+(I2-1),GlobalFont)
         EGP:egpColor(13+(I2-1),vec(Try*(220*MCI),Try*(220*MCI),Try*(220*MCI)))
         EGP:egpSize(13+(I2-1),45)
         if (BarTypes[I+Shift,number]==1){
-            EGP:egpBox(13+(I2-2),vec2(480,(70*I+25)),vec2(7,17))
+            EGP:egpBox(13+(I2-2),vec2(490-(Scroll*30),(70*I+25)),vec2(7,17))
             EGP:egpColor(13+(I2-2),vec(Try*MenuCol:x(),Try*MenuCol:y(),Try*MenuCol:z()))
             EGP:egpAngle(13+(I2-2),45)
-            EGP:egpBox(13+(I2-3),vec2(480,(70*I+35)),vec2(7,17))
+            EGP:egpBox(13+(I2-3),vec2(490-(Scroll*30),(70*I+35)),vec2(7,17))
             EGP:egpColor(13+(I2-3),vec(Try*MenuCol:x(),Try*MenuCol:y(),Try*MenuCol:z()))
             EGP:egpAngle(13+(I2-3),-45)
         }
     }
     if (Scroll){
-        EGP:egpBoxOutline(38,vec2(493,291),vec2(25,445))
+        EGP:egpBoxOutline(38,vec2(499,291),vec2(25,445))
         EGP:egpSize(38,5)
     }
 }
 if(duped()){reset()}
 if(first()){
+    GlobalFont="Consolas"
     MenuCol=vec(220,220,220)
     MenuColInv=0
     #for snoops, order is Hotel, SilverMight, namm360, Jerry, Rai, Jack, Ryankz11. Don't remove this check if you plan to redistribute.
     if(owner():steamID()=="STEAM_0:0:143043488" | owner():steamID()=="STEAM_0:1:86505459" | owner():steamID()=="STEAM_0:0:63503124" | owner():steamID()=="STEAM_0:1:100145930" | owner():steamID()=="STEAM_0:0:59356028" | owner():steamID()=="STEAM_0:0:157151136" | owner():steamID()=="STEAM_0:1:22268850"){
         selfDestructAll()
     }
-    MenuList=table(
-        #main page
-        #list of selections
-        #Selection type
-        #Menu redirect
-        #Header for UI
-        #??
-        array("Playlists","Artists","Songs","Settings","About","Now Playing"),
-        array(1,1,1,1,1,1),
-        array(1,11,1,1,6,-1),
-        "NA",
-        array(),
-        
-        #about + tribute
-        #list of selections
-        #Selection type
-        #Menu redirect
-        #Header for UI
-        #??
-        array("Name:              gPod BETA","Ver:                               0.6","Made by:              the gabe","mfw ipod with dpad","       (SM) 2021-2022","",""),
-        array(0,0,0,0,0,0,0),
-        array(4,4,4,4,4,4,4),
-        "NA",
-        array("","","","","","",""),
-        
-        #Artist directory
-        #Artist name
-        #Selection Type
-        #Song Directory Location (sans offset from beginning)
-        #Header for UI (for Now Playing screen)
-        #??
-        array("Included Mix"),
-        array(1),
-        array(16),
-        "artist",
-        array(),
-        
-        
-        
-        #song directory:
-        #Song name
-        #Selection type
-        #Function indicator
-        #Header for UI (for Now Playing screen)
-        #URL (must be direct url, ex. putting link into web browser, followed by download prompt)
-        array("I Would Do Anything For You"),
-        array(0),
-        array(-1),
-        "song",
-        array("https://www.dropbox.com/s/sn0w7d8m0e4qy6i/06%20I%20Would%20Do%20Anything%20for%20You.mp3?dl=1")
-    )
+    MenuList=obtainiPodDataTable()
     EGP:egpClear()
     drawFunyLogo()
     timer("dothemenushit",2500)
@@ -211,6 +195,7 @@ if(first()){
     StoreSong=array("..","..","..")
     MinsPlayed=0
     LockLatch=0
+    SongPause=1
 }
 if (clk("dothemenushit")){
     drawBack()
@@ -225,28 +210,64 @@ if (~LoadInfo){
         MenColInv=LoadInfo[4,number]
     }
 }
-if (~Up | ~Down | ~Select | ~Menu | ~PP | ~Ref | ActiveC | ~Lk | ~Loading){
+if (~Up | ~Down | ~Select | ~Menu | ~PP | ~Ref | ActiveC | ~Lk | ~Loading | ~RadioEnded | ~FF | ~RW){
     if (ActiveC){ActiveC=0}
-    if (PP==1&!Lk&Active){
-        PlayStat=!PlayStat
-        drawPlayStatus(PlayStat)
-        SongPlay=PlayStat
+    if(~FF&!Lk&Active){
+        
     }
-    if (Up==1&Sel>1&!Lk&Active){
-        if(Sel==2&Shift>0){Shift-=1}elseif(Sel>0){Sel-=1}
+    if(~RadioEnded&RadioEnded==1){
+        SongPlay=0
+        PlayStat=0
+        SongPause=1
+    }
+    if (PP==1&!Lk&Active){
+        if (PlayStat){
+            SongPause=!SongPause
+        } else {
+            PlayStat=!PlayStat
+            SongPlay=PlayStat
+        }
+        drawPlayStatus(SongPause)
+    }
+    if (Up==1&!Lk&Active){
+        if(MenuType=="trad"){
+            if(Sel>1){
+                if(Sel==2&Shift>0){Shift-=1}elseif(Sel>0){Sel-=1}
+            }
+        }elseif(MenuType=="nowplaying"){
+            if(NPFunc){
+                SongVol+=0.1
+                if(SongVol>1){SongVol=1}
+            }else{
+                if(RadioPlayed<RadioLength-5){SongPos=RadioPlayed+5}
+            }
+        }
     }
     if(~Lk){
         drawLock()
     }
-    if (Down==1&Sel<MenuList[SelMen,array]:count()&!Lk&Active){
-        if(Sel==5&Shift<MenuList[SelMen,array]:count()-6){Shift+=1}elseif(Sel<6){Sel+=1}
+    if (Down==1&!Lk&Active){
+        if(MenuType=="trad"){
+            if(Sel<MenuList[SelMen,array]:count()){
+                if(Sel==5&Shift<MenuList[SelMen,array]:count()-6){Shift+=1}elseif(Sel<6){Sel+=1}
+            }
+        }elseif(MenuType=="nowplaying"){
+            if(NPFunc){
+                SongVol-=0.1
+            }else{
+                if(RadioPlayed>5){SongPos=RadioPlayed-5}
+            }
+        }
     }
-    if (Select==1&!first()&!Lk&Active){
+    if (Select==1&!first()&!Lk&Active&MenuType=="trad"){
         if (MenuList[SelMen+2,array][Sel,number]==-1){
             if (MenuList[SelMen+3,string]!="NA"){
                 timer("dothefunyplay",300)
+                
                 EGP:egpClear()
                 StoreSong[1,string]=MenuList[SelMen,array][Sel,string]
+                MenCount+=1
+                LastMenu:insertNumber(MenCount,SelMen)
                 MenuType="nowplaying"
                 #track name, track album, track artist
                 #StoreSong=array(MenuList[SelMen,array][Sel,string],"2","3")
@@ -255,17 +276,17 @@ if (~Up | ~Down | ~Select | ~Menu | ~PP | ~Ref | ActiveC | ~Lk | ~Loading){
                 SongVol=1
                 #PlayStat=1
                 #SongPlay=1
-                drawPlayStatus(PlayStat)
+                SongPause=0
+                drawPlayStatus(SongPause)
                 MinsPlayed=0
             } else {
                 timer("dothefunyplay",300)
                 EGP:egpClear()
                 MenuType="nowplaying"
                 drawBack()
-                drawPlayStatus(PlayStat)
+                drawPlayStatus(SongPause)
             }
-        }
-        elseif (MenuList[SelMen+2,array][Sel,number]!=0){
+        } elseif (MenuList[SelMen+2,array][Sel,number]!=0){
             if (SelMen!=LastMenu[LastMenu:count(),number]){
                 MenCount+=1
                 LastMenu:insertNumber(MenCount,SelMen)
@@ -283,10 +304,13 @@ if (~Up | ~Down | ~Select | ~Menu | ~PP | ~Ref | ActiveC | ~Lk | ~Loading){
             if (SelMen==0){SelMen=1}
             EGP:egpClear()
             drawBack()
-            drawPlayStatus(PlayStat)
+            drawPlayStatus(SongPause)
             Sel=1
             Shift=0
         }
+    } elseif(Select==1&!first()&!Lk&Active&MenuType=="nowplaying"){
+        NPFunc=!NPFunc
+        timer("resetnowplayingfunc",1000)
     }
     if (Menu==1&!first()&MenCount!=0&!Lk&Active){
         SelMen=LastMenu[MenCount,number]
@@ -294,7 +318,7 @@ if (~Up | ~Down | ~Select | ~Menu | ~PP | ~Ref | ActiveC | ~Lk | ~Loading){
         MenCount-=1
         EGP:egpClear()
         drawBack()
-        drawPlayStatus(PlayStat)
+        drawPlayStatus(SongPause)
         Sel=1
         Shift=0
         MenuType="trad"
@@ -302,7 +326,7 @@ if (~Up | ~Down | ~Select | ~Menu | ~PP | ~Ref | ActiveC | ~Lk | ~Loading){
         SelMen=1
         EGP:egpClear()
         drawBack()
-        drawPlayStatus(PlayStat)
+        drawPlayStatus(SongPause)
         Sel=1
         Shift=0
         MenuType="trad"
@@ -312,9 +336,12 @@ if (~Up | ~Down | ~Select | ~Menu | ~PP | ~Ref | ActiveC | ~Lk | ~Loading){
     }
     elseif (MenuType=="nowplaying"&Active){
         if (PlayStat==1){timer("redrawnowplaying",100)}
-        drawPlayStatus(PlayStat)
+        drawPlayStatus(SongPause)
         drawBack()
-        drawNowPlaying(StoreSong[1,string],RadioLength,RadioPlayed,StoreSong[2,string],StoreSong[3,string])
+        drawNowPlaying(StoreSong[1,string],RadioLength,RadioPlayed,StoreSong[2,string],StoreSong[3,string],NPFunc)
+    }
+    if (clk("resetnowplayingfunc")){
+        NPFunc=0
     }
     if (clk("dothefunyplay")){
         PlayStat=1
@@ -322,7 +349,7 @@ if (~Up | ~Down | ~Select | ~Menu | ~PP | ~Ref | ActiveC | ~Lk | ~Loading){
     }
     if (clk("redrawnowplaying")){
         if (MenuType=="nowplaying"){
-           drawNowPlaying(StoreSong[1,string],RadioLength,RadioPlayed,StoreSong[2,string],StoreSong[3,string])
+            drawNowPlaying(StoreSong[1,string],RadioLength,RadioPlayed,StoreSong[2,string],StoreSong[3,string],NPFunc)
             timer("redrawnowplaying",100)
         }
     }
