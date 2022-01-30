@@ -1,14 +1,11 @@
 @name ipod
 @inputs EGP:wirelink Up Down Menu FF RW PP Select RadioPlayed RadioLength Ref Lk Loading LoadInfo:array RadioEnded
-@outputs Test MenCount Active SongPlay SongURL:string SongVol MenuType:string SelMen SongStat LockLatch SongPause LastMenu:array NPFunc SongPos NameScrollOffset
+@outputs Test MenCount Active SongPlay SongURL:string SongVol MenuType:string SelMen SongStat LockLatch SongPause LastMenu:array NPFunc SongPos NameScrollOffset SongLoop
 @persist MenuList:table Sel SelMen LastMenu:array MenCount MenuType:string ActiveC Shift PlayStat StoreSong:array 
 @persist MinsPlayed CaseCol:vector MenColInv MenuCol:vector NameScrollOffset ArtistScrollOffset AlbumScrollOffset NSOB ASOB ALSOB GlobalFont:string NPFunc
 @trigger 
 #include "ipoddata"
 runOnTick(1)
-function drawCaseHolos(){
-    Base=entity():isWeldedTo()
-}
 function drawFunyLogo(){
     EGP:egpBox(1,vec2(256,256),vec2(512,512)) #backdrop
     EGP:egpColor(1,MenuCol)
@@ -29,7 +26,6 @@ function drawFunyLogo(){
         EGP:egpSize(6,50)
         EGP:egpColor(6,vec())
     }
-    #More specifically, fuck SilverMight, namm360, Rai, Hotel, linklegend, Jerry, and Ryankz11. This is in spite of all of you assholes, especially you, you bitch.
 }
 function drawBack() {
     EGP:egpBox(1,vec2(256,256),vec2(512,512)) #backdrop
@@ -79,12 +75,12 @@ function drawLock(){
     }
 }
 function drawNowPlaying(Name:string,Duration,Played,Artist:string,Album:string,Mode){
-    if(Name:length()>23&NSOB==0){NSOB=1}else{NSOB=0}
-    if(NSOB!=0){
-        NameScrollOffset+=22*NSOB
-        if(NameScrollOffset/22>5){NSOB=-1}
-        #elseif(NameScrollOffset<(Name:length()-23)/3){NSOB=-1}
-    }
+    #if(Name:length()>23&NSOB==0){NSOB=1}else{NSOB=0}
+    #if(NSOB!=0){
+    #    NameScrollOffset+=22*NSOB
+    #    if(NameScrollOffset/22>5){NSOB=-1}
+    #    #elseif(NameScrollOffset<(Name:length()-23)/3){NSOB=-1}
+    #}
     FancyTimePlayedT=floor(Played/60)#mins
     FancyTimePlayedT2=round((Played-(FancyTimePlayedT*60))):toString()#seconds
     if(FancyTimePlayedT2:length()<2){FancyTimePlayedT2="0"+FancyTimePlayedT2}
@@ -286,7 +282,7 @@ if (~Up | ~Down | ~Select | ~Menu | ~PP | ~Ref | ActiveC | ~Lk | ~Loading | ~Rad
                 drawBack()
                 drawPlayStatus(SongPause)
             }
-        } elseif (MenuList[SelMen+2,array][Sel,number]!=0){
+        } elseif (MenuList[SelMen+2,array][Sel,number]!=0&MenuList[SelMen+2,array][Sel,number]!=LastMenu[LastMenu:count(),number]){
             if (SelMen!=LastMenu[LastMenu:count(),number]){
                 MenCount+=1
                 LastMenu:insertNumber(MenCount,SelMen)
