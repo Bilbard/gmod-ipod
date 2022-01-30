@@ -3,15 +3,45 @@
 @outputs Up Down Menu FF RW Play Cn Cursor:vector2
 @persist 
 @trigger 
+function drawCaseHolos(Col:vector){
+    Base=entity():isWeldedTo()
+    holoCreate(1,Base:toWorld(vec(25,14,1.75)),vec(0.5,1,0.7),Base:toWorld(ang(0,0,-90)),Col,"models/sprops/geometry/qdisc_18.mdl")
+    holoMaterial(1,"models/debug/debugwhite")
+    holoParent(1,Base)
+    holoDisableShading(1,1)
+    holoCreate(2,Base:toWorld(vec(25,-14,1.75)),vec(0.5,1,0.7),Base:toWorld(ang(0,0,90)),Col,"models/sprops/geometry/qdisc_18.mdl")
+    holoMaterial(2,"models/debug/debugwhite")
+    holoParent(2,Base)
+    holoDisableShading(2,1)
+    holoCreate(3,Base:toWorld(vec(-1,0,1.75)),vec(0.795,0.952,0.5),Base:toWorld(ang(0,0,0)),Col,"models/sprops/cuboids/height06/size_6/cube_36x60x6.mdl")
+    holoMaterial(3,"models/debug/debugwhite")
+    holoParent(3,Base)
+    holoDisableShading(3,1)
+    holoCreate(4,Base:toWorld(vec(-27,-14,1.75)),vec(0.5,1,0.7),Base:toWorld(ang(0,180,-90)),Col,"models/sprops/geometry/qdisc_18.mdl")
+    holoMaterial(4,"models/debug/debugwhite")
+    holoParent(4,Base)
+    holoDisableShading(4,1)
+    holoCreate(5,Base:toWorld(vec(-27,14,1.75)),vec(0.5,1,0.7),Base:toWorld(ang(0,180,90)),Col,"models/sprops/geometry/qdisc_18.mdl")
+    holoMaterial(5,"models/debug/debugwhite")
+    holoParent(5,Base)
+    holoDisableShading(5,1)
+    holoCreate(6,Base:toWorld(vec(-1,0,1.75)),vec(0.9421,0.61,0.5),Base:toWorld(ang(0,0,0)),Col,"models/sprops/cuboids/height06/size_6/cube_36x60x6.mdl")
+    holoMaterial(6,"models/debug/debugwhite")
+    holoParent(6,Base)
+    holoDisableShading(6,1)
+}
 if(duped()|dupefinished()){reset()}
 if(first()){
     EGP:egpClear()
     Debug=0
+    Mode=0
+    drawCaseHolos(vec(255*Mode,255*Mode,255*Mode))
     EGP:egpBox(1,vec2(0,0),vec2(1024,1024))
+    EGP:egpColor(1,vec(255*Mode,255*Mode,255*Mode))
     EGP:egpCircle(2,vec2(256,256),vec2(256,256))
     EGP:egpCircle(3,vec2(256,256),vec2(88,88))
-    EGP:egpColor(2,vec(200,200,200))
-    EGP:egpColor(3,vec(255,255,255))
+    EGP:egpColor(2,vec(180*Mode+20,180*Mode+20,180*Mode+20))
+    EGP:egpColor(3,vec(255*Mode,255*Mode,255*Mode))
     EGP:egpText(4,"Menu",vec2(195,22))
     EGP:egpSize(4,50)
     EGP:egpTriangle(5,vec2(436,240),vec2(436,272),vec2(460,256))
