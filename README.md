@@ -20,8 +20,11 @@ The advanced features/library of the stream radio are not required and are unuse
 
 # Todo
 - Playlists
+- iTunes 
 - Expanded settings
 - Statistics tracking (maybe. all private info, eg. song play count)
 - Touch functionality of Click Wheel (if wireteam accepts my request for constant use output of EGP)
 - Games (maybe)
 - Build instructions/functional diagram (after full completion)
+
+iPod, iTunes, and their designs are © Apple Inc.
