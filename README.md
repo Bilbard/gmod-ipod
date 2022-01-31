@@ -13,7 +13,7 @@ Fully featured (to be), honest to the original UI design. Based on the case desi
 # Requirements
 - Wiremod
 - Expression 2 Propcore extention (required for following chip, not required for normal function)
-- SProps (for case)
+- SProps (for case/baseplate)
 - Stream Radios
 
 The advanced features/library of the stream radio are not required and are unused for compatibilities sake as most people do not have them.
