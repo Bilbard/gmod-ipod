@@ -1,6 +1,8 @@
 # gmod-ipod
 iPod recreation made with Wiremod/Stream Radios/E2.
+
 ![Screenshot](1-31-2022-case.PNG)
+
 Fully featured (to be), honest to the original UI design. Based on the case design of the 4th/5th gen iPod classics.
 
 # Features
@@ -22,3 +24,4 @@ The advanced features/library of the stream radio are not required and are unuse
 - Statistics tracking (maybe. all private info, eg. song play count)
 - Touch functionality of Click Wheel (if wireteam accepts my request for constant use output of EGP)
 - Games (maybe)
+- Build instructions/functional diagram (after full completion)
