@@ -9,9 +9,9 @@ function table obtainiPodDataTable(){
         #??
         array("Artists","Songs","Settings","About","Now Playing"),
         array(1,1,1,1,1),
-        array(11,1,1,6,-1),
-        "NA",
-        table(array(1,2,3),array(),array(),array(1,2,3,4,5,6),array()),#5
+        array(11,21,1,6,-1),
+        "album",
+        table(array(1,2,3),array(1,2,3,4),array(),array(1,2,3,4,5,6),array()),#5
         
         #about + tribute
         #list of selections
@@ -83,5 +83,5 @@ function table genMenu(Input:table, Range:array, BIndex){
         TTab[3,array][I,number]==Input[BIndex+2,array][Range[I,number],number]
         TTab[5,array][I,string]==Input[BIndex+4,array][Range[I,number],string]
     }
-    return table()
+    return TTab
 }

@@ -1,6 +1,7 @@
 @name Click Wheel
-@inputs EGP:wirelink User:entity Active
-@outputs Up Down Menu FF RW Play Cn Cursor:vector2
+@inputs EGP:wirelink User:entity Active CursorLoop:vector2
+@outputs Up Down Menu FF RW Play Cn Cursor:vector2 Cursor2:vector2 CursorStore:vector2 Clk
+@persist Use:entity
 function drawCaseHolos(Col:vector){
     Base=entity():isWeldedTo()
     holoCreate(1,Base:toWorld(vec(25,14,0.75)),vec(0.5,1.6,0.7),Base:toWorld(ang(0,0,-90)),Col,"models/sprops/geometry/qdisc_18.mdl")
@@ -104,33 +105,46 @@ if(first()){
 }
 if(Active){
     Cursor = EGP:egpCursor(User)
-    #Cursor2 = EGP:egpCursor(owner())
-    #if(Cursor2&owner():keyUse()){
-    #    Up==1
-    #}else{Up=0}
-    #predefined coords make this faster, but is ugly.
-    if(Cursor){
-        if(inrange(Cursor,vec2(192,192),vec2(320,320))){
-            #Center
-            Cn=1
-        }elseif(inrange(Cursor,vec2(192,14),vec2(320,142))){
-            #Menu
-            Menu=1
-        }elseif(inrange(Cursor,vec2(14,192),vec2(142,320))){
-            #Rewind
-            RW=1
-        }elseif(inrange(Cursor,vec2(320,192),vec2(498,320))){
-            #Fast Forward
-            FF=1
-        }elseif(inrange(Cursor,vec2(192,320),vec2(320,448))){
-            #Play
-            Play=1
-        }else{
-            Cn=0
-            Menu=0
-            FF=0
-            RW=0
-            Play=0
+    #You could have just added the feature, divran. Now this exists.
+    if (~User & User) {
+        Use = User
+        runOnTick(1)
+    } elseif (tickClk()) {
+        if (!Use:keyUse()) {
+            Use = noentity()
         }
     }
+    if(Use){
+        Cursor2=EGP:egpCursor(Use)
+        CursorLoop=Cursor2
+    }
+    
+    #predefined coords make this faster, but is ugly.
+    if(~CursorLoop&CursorLoop==vec2(-1,-1)){
+        if(inrange(CursorStore,vec2(192,192),vec2(320,320))){
+            #Center
+            Cn=1
+        }elseif(inrange(CursorStore,vec2(192,14),vec2(320,142))){
+            #Menu
+            Menu=1
+        }elseif(inrange(CursorStore,vec2(14,192),vec2(142,320))){
+            #Rewind
+            RW=1
+        }elseif(inrange(CursorStore,vec2(320,192),vec2(498,320))){
+            #Fast Forward
+            FF=1
+        }elseif(inrange(CursorStore,vec2(192,320),vec2(320,448))){
+            #Play
+            Play=1
+        }
+    }else{
+        Cn=0
+        Menu=0
+        FF=0
+        RW=0
+        Play=0
+        runOnTick(0)
+    }
+    if(Clk<ops()){CLk=ops()}
+    if(Cursor2!=vec2(-1,-1)){CursorStore=Cursor2}
 }
