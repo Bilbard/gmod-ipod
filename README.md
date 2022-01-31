@@ -11,10 +11,10 @@ Fully featured (to be), honest to the original UI design. Based on the case desi
 - Customizable colours and UI
 
 # Requirements
-- Wiremod
+- Wiremod  -  https://steamcommunity.com/sharedfiles/filedetails/?id=160250458
 - Expression 2 Propcore extention (required for following chip, not required for normal function)
-- SProps (for case/baseplate)
-- Stream Radios
+- SProps (for case/baseplate)  -  https://steamcommunity.com/sharedfiles/filedetails/?id=173482196
+- Stream Radios  -  https://steamcommunity.com/sharedfiles/filedetails/?id=246756300
 
 The advanced features/library of the stream radio are not required and are unused for compatibilities sake as most people do not have them.
 
