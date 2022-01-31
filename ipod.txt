@@ -1,6 +1,7 @@
 @name ipod
 @inputs EGP:wirelink Up Down Menu FF RW PP Select RadioPlayed RadioLength Ref Lk Loading LoadInfo:array RadioEnded
 @outputs Test MenCount Active SongPlay SongURL:string SongVol MenuType:string SelMen SongStat LockLatch SongPause LastMenu:array NPFunc SongPos NameScrollOffset SongLoop
+@outputs MenuStore:table Debug
 @persist MenuList:table Sel SelMen LastMenu:array MenCount MenuType:string ActiveC Shift PlayStat StoreSong:array 
 @persist MinsPlayed CaseCol:vector MenColInv MenuCol:vector NameScrollOffset ArtistScrollOffset AlbumScrollOffset NSOB ASOB ALSOB GlobalFont:string NPFunc
 @trigger 
@@ -192,6 +193,8 @@ if(first()){
     MinsPlayed=0
     LockLatch=0
     SongPause=1
+    MenuStore=genMenu(MenuList, MenuList[SelMen+4,array], SelMen)
+    Debug=MenuList[5,array][1,number]
 }
 if (clk("dothemenushit")){
     drawBack()

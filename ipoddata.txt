@@ -11,7 +11,7 @@ function table obtainiPodDataTable(){
         array(1,1,1,1,1),
         array(11,1,1,6,-1),
         "NA",
-        array(),#5
+        table(array(1,2,3),array(),array(),array(1,2,3,4,5,6),array()),#5
         
         #about + tribute
         #list of selections
@@ -20,21 +20,21 @@ function table obtainiPodDataTable(){
         #Header for UI
         #??
         array("Name:              gPod","Ver:               v0.8","Made by:       the gabe"),
-        array(0,0,0,0,0,0),
-        array(6,6,6,6,6,6),
+        array(0,0,0,0,0),
+        array(6,6,6,6,6),
         "NA",
-        array("","","","","",""),#10
+        table(array(),array(),array(),array(),array()),#10
         
         #Artist directory
         #Artist name
         #Selection Type
         #Header for UI (for Now Playing screen)
         #vector2 for album directory, vec2(start of albums, count after start).
-        array("Included Mix"),
-        array(1),
-        array(16),
+        array("Foster the People","Green Day","Red Hot Chili Peppers"),
+        array(1,1,1),
+        array(16,16,16),
         "artist",
-        array(vec2(1,3)),#15
+        table(array(1),array(2,4),array(3)),#15
         
         #album directory
         #Album name
@@ -45,7 +45,7 @@ function table obtainiPodDataTable(){
         array(1,1,1,1),
         array(21,21,21,21),
         "album",
-        array(vec2(1,0),vec2(2,0),vec2(3,0),vec2(4,0)),#20
+        table(array(1),array(2),array(3),array(4)),#20
         
         #song directory:
         #Song name
@@ -57,7 +57,7 @@ function table obtainiPodDataTable(){
         array(0,0,0,0),
         array(-1,-1,-1,-1),
         "song",
-        array(
+        table(
         "https://www.dropbox.com/s/sn0w7d8m0e4qy6i/06%20I%20Would%20Do%20Anything%20for%20You.mp3?dl=1",
         "https://www.dropbox.com/s/73n0esbqeb6am3f/09%20Peacemaker.mp3?dl=1",
         "https://www.dropbox.com/s/kv9p1b191tgoxze/04%20Lately.mp3?dl=1",
@@ -66,9 +66,22 @@ function table obtainiPodDataTable(){
         array("Loop"),
         array(0),
         array(26),
-        "NA"
+        "NA",
+        table()
     )
     TTab[6,array][4,string]="Songs: "+("                ":sub(0,16-TTab[21,array]:count():toString():length()))+TTab[21,array]:count()
     TTab[6,array][5,string]="     (SM)2021-2022     "
     return TTab
+}
+function table genMenu(Input:table, Range:array, BIndex){
+    I=0
+    TTab=table(array(),array(),array(),Input[BIndex+3,string],table())
+    for (I=1,I<Range:count(),1){
+        print(2,I)
+        TTab[1,array][I,string]==Input[BIndex,array][Range[I,number],string]
+        TTab[2,array][I,number]==Input[BIndex+1,array][Range[I,number],number]
+        TTab[3,array][I,number]==Input[BIndex+2,array][Range[I,number],number]
+        TTab[5,array][I,string]==Input[BIndex+4,array][Range[I,number],string]
+    }
+    return table()
 }
