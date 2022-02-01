@@ -1,7 +1,7 @@
 # gmod-ipod
 iPod recreation made with Wiremod/Stream Radios/E2.
 
-![Screenshot](1-31-2022-case.PNG)
+![Screenshot](2-1-2022-case.PNG)
 
 Fully featured (to be), honest to the original UI design. Based on the case design of the 4th/5th gen iPod classics. 
 
