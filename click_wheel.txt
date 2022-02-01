@@ -1,7 +1,36 @@
 @name Click Wheel
-@inputs EGP:wirelink User:entity Active CursorLoop:vector2
-@outputs Up Down Menu FF RW Play Cn Cursor:vector2 Cursor2:vector2 CursorStore:vector2 Clk
+@inputs EGP:wirelink User:entity Active CursorLoop:vector2 UseL:entity
+@outputs Up Down Menu FF RW Play Cn Cursor:vector2 Cursor2:vector2 CursorStore:vector2 Clk Clk2 Use:entity But CursorBeg:vector2 U2
 @persist Use:entity
+function detClick(){
+    But=0
+    if(inrange(Cursor2,vec2(192,14),vec2(320,142))){
+        #North
+        Clk=1
+    }elseif(inrange(Cursor2,vec2(320,64),vec2(448,192))){
+            #North-East
+        Clk=2
+    }elseif(inrange(Cursor2,vec2(320,192),vec2(498,320))){
+        #East
+        Clk=3
+    }elseif(inrange(Cursor2,vec2(320,320),vec2(448,448))){
+        #South-East
+        Clk=4
+    }elseif(inrange(Cursor2,vec2(192,320),vec2(320,448))){
+        #South
+        Clk=5
+    }elseif(inrange(Cursor2,vec2(64,320),vec2(192,448))){
+        #South-West
+        Clk=6
+    }elseif(inrange(Cursor2,vec2(14,192),vec2(142,320))){
+        #West
+        Clk=7
+    }
+    elseif(inrange(Cursor2,vec2(64,64),vec2(192,192))){
+        #North-West
+        Clk=8
+    }
+}
 function drawCaseHolos(Col:vector){
     Base=entity():isWeldedTo()
     holoCreate(1,Base:toWorld(vec(25,14,0.75)),vec(0.5,1.6,0.7),Base:toWorld(ang(0,0,-90)),Col,"models/sprops/geometry/qdisc_18.mdl")
@@ -88,7 +117,7 @@ if(first()){
     EGP:egpTriangle(11,vec2(224,448),vec2(224,480),vec2(252,464))
     EGP:egpBox(12,vec2(268,464),vec2(8,32))
     EGP:egpBox(13,vec2(283,464),vec2(8,32))
-    if(Debug){
+    if(Debug==1){
         EGP:egpBox(14,vec2(434,256),vec2(128,128))
         EGP:egpColor(14,vec())
         EGP:egpBox(15,vec2(78,256),vec2(128,128))
@@ -100,7 +129,28 @@ if(first()){
         EGP:egpBox(18,vec2(256,256),vec2(128,128))
         EGP:egpColor(18,vec())
         EGP:egpCircle(19,vec2(0,0),vec2(32,32))
-        EGP:egpParentToCursor(19)
+        #EGP:egpParentToCursor(19)
+    }elseif(Debug==2){
+        EGP:egpBox(14,vec2(434,256),vec2(128,128))
+        EGP:egpColor(14,vec())
+        EGP:egpBox(15,vec2(78,256),vec2(128,128))
+        EGP:egpColor(15,vec())
+        EGP:egpBox(16,vec2(256,434),vec2(128,128))
+        EGP:egpColor(16,vec())
+        EGP:egpBox(17,vec2(256,78),vec2(128,128))
+        EGP:egpColor(17,vec())
+        
+        EGP:egpBox(18,vec2(128,128),vec2(128,128))
+        EGP:egpColor(18,vec())
+        
+        EGP:egpBox(19,vec2(384,128),vec2(128,128))
+        EGP:egpColor(19,vec())
+        
+        EGP:egpBox(20,vec2(128,384),vec2(128,128))
+        EGP:egpColor(20,vec())
+        
+        EGP:egpBox(21,vec2(384,384),vec2(128,128))
+        EGP:egpColor(21,vec())
     }
 }
 if(Active){
@@ -108,19 +158,49 @@ if(Active){
     #You could have just added the feature, divran. Now this exists.
     if (~User & User) {
         Use = User
+        But = 1
+        Clk = 0
+        Clk2 = 0
+        Cursor2=EGP:egpCursor(Use)
+        CursorBeg=Cursor2
+        detClick()
         runOnTick(1)
     } elseif (tickClk()) {
         if (!Use:keyUse()) {
             Use = noentity()
+            #Up=0
+            #Down=0
+            Cn=0
+            Menu=0
+            FF=0
+            RW=0
+            Play=0
+            runOnTick(0)
         }
     }
-    if(Use){
+    if(Use!=noentity() | ~UseL){
         Cursor2=EGP:egpCursor(Use)
         CursorLoop=Cursor2
+        #Clk2=Clk
+        if(!inrange(Cursor2,CursorBeg-vec2(16,16),CursorBeg+vec2(16,16))){
+            detClick()
+            if(Clk2!=Clk){
+                if(Clk>Clk2){
+                    Down=!Down
+                }elseif(Clk<Clk2){
+                    Up=!Up
+                }
+                Clk2=Clk
+            }
+        }
+    }else{
+        CursorStore==vec2(-1,-1)
+        Cursor2=vec2()
     }
     
+    
     #predefined coords make this faster, but is ugly.
-    if(~CursorLoop&CursorLoop==vec2(-1,-1)){
+    if(CursorStore!=vec2(-1,-1)&!Use&But){
         if(inrange(CursorStore,vec2(192,192),vec2(320,320))){
             #Center
             Cn=1
@@ -137,14 +217,8 @@ if(Active){
             #Play
             Play=1
         }
-    }else{
-        Cn=0
-        Menu=0
-        FF=0
-        RW=0
-        Play=0
-        runOnTick(0)
+        CursorStore==vec2(-1,-1)
     }
-    if(Clk<ops()){CLk=ops()}
+    #if(Clk<ops()){CLk=ops()}
     if(Cursor2!=vec2(-1,-1)){CursorStore=Cursor2}
 }

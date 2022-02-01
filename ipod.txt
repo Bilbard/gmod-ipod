@@ -227,7 +227,7 @@ if (~Up | ~Down | ~Select | ~Menu | ~PP | ~Ref | ActiveC | ~Lk | ~Loading | ~Rad
         }
         drawPlayStatus(SongPause)
     }
-    if (Up==1&!Lk&Active){
+    if (~Up&!Lk&Active){
         if(MenuType=="trad"){
             if(Sel>1){
                 if(Sel==2&Shift>0){Shift-=1}elseif(Sel>0){Sel-=1}
@@ -244,7 +244,7 @@ if (~Up | ~Down | ~Select | ~Menu | ~PP | ~Ref | ActiveC | ~Lk | ~Loading | ~Rad
     if(~Lk){
         drawLock()
     }
-    if (Down==1&!Lk&Active){
+    if (~Down&!Lk&Active){
         if(MenuType=="trad"){
             if(Sel<MenuList[SelMen,array]:count()){
                 if(Sel==5&Shift<MenuList[SelMen,array]:count()-6){Shift+=1}elseif(Sel<6){Sel+=1}
