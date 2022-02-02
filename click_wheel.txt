@@ -1,9 +1,8 @@
 @name Click Wheel
 @inputs EGP:wirelink User:entity Active CursorLoop:vector2 UseL:entity
-@outputs Up Down Menu FF RW Play Cn Cursor:vector2 Cursor2:vector2 CursorStore:vector2 Clk Clk2 Use:entity But CursorBeg:vector2 U2
-@persist Use:entity
+@outputs Up Down Menu FF RW Play Cn Cursor:vector2 Cursor2:vector2 CursorStore:vector2 Clk Clk2 Use:entity But CursorBeg:vector2
+@persist Use:entity TCol:vector
 function detClick(){
-    But=0
     if(inrange(Cursor2,vec2(192,14),vec2(320,142))){
         #North
         Clk=1
@@ -98,14 +97,15 @@ if(duped()|dupefinished()){reset()}
 if(first()){
     EGP:egpClear()
     Debug=0
-    Mode=1
-    drawCaseHolos(vec(255*Mode,255*Mode,255*Mode))
+    Mode=0
+    TCol=vec(255*Mode,255*Mode,255*Mode)
+    drawCaseHolos(TCol)
     EGP:egpBox(1,vec2(0,0),vec2(1024,1024))
-    EGP:egpColor(1,vec(255*Mode,255*Mode,255*Mode))
+    EGP:egpColor(1,TCol)
     EGP:egpCircle(2,vec2(256,256),vec2(256,256))
     EGP:egpCircle(3,vec2(256,256),vec2(88,88))
     EGP:egpColor(2,vec(180*Mode+20,180*Mode+20,180*Mode+20))
-    EGP:egpColor(3,vec(255*Mode,255*Mode,255*Mode))
+    EGP:egpColor(3,TCol)
     EGP:egpText(4,"MENU",vec2(194.5,22))
     EGP:egpSize(4,50)
     EGP:egpTriangle(5,vec2(436,240),vec2(436,272),vec2(460,256))
@@ -155,15 +155,16 @@ if(first()){
 }
 if(Active){
     Cursor = EGP:egpCursor(User)
+    #Up = 0
+    #Down = 0
     #You could have just added the feature, divran. Now this exists.
     if (~User & User) {
         Use = User
         But = 1
-        Clk = 0
-        Clk2 = 0
         Cursor2=EGP:egpCursor(Use)
         CursorBeg=Cursor2
         detClick()
+        Clk2=Clk
         runOnTick(1)
     } elseif (tickClk()) {
         if (!Use:keyUse()) {
@@ -182,13 +183,17 @@ if(Active){
         Cursor2=EGP:egpCursor(Use)
         CursorLoop=Cursor2
         #Clk2=Clk
-        if(!inrange(Cursor2,CursorBeg-vec2(16,16),CursorBeg+vec2(16,16))){
+        if(!inrange(Cursor2,CursorBeg-vec2(8,8),CursorBeg+vec2(8,8))){
+            But=0
             detClick()
             if(Clk2!=Clk){
-                if(Clk>Clk2){
-                    Down=!Down
-                }elseif(Clk<Clk2){
-                    Up=!Up
+                if(Clk>Clk2&!(Clk==8&Clk2==1) | (Clk==1&Clk2==8)){
+                    Down=1
+                    timer("resd",10)
+                }
+                elseif(Clk<Clk2&!(Clk==1&Clk2==8) | (Clk==8&Clk2==1)){
+                    Up=1
+                    timer("resu",10)
                 }
                 Clk2=Clk
             }
@@ -197,7 +202,8 @@ if(Active){
         CursorStore==vec2(-1,-1)
         Cursor2=vec2()
     }
-    
+    #if(~UL){Up=1}else{Up=0}
+    #if(~DL){Down=1}else{Down=0}
     
     #predefined coords make this faster, but is ugly.
     if(CursorStore!=vec2(-1,-1)&!Use&But){
@@ -221,4 +227,6 @@ if(Active){
     }
     #if(Clk<ops()){CLk=ops()}
     if(Cursor2!=vec2(-1,-1)){CursorStore=Cursor2}
+    if(clk("resu")){Up=0}
+    if(clk("resd")){Down=0}
 }
