@@ -23,7 +23,7 @@ The advanced features/library of the stream radio are not required and are unuse
 - iTunes 
 - Expanded settings
 - Statistics tracking (maybe. all private info, eg. song play count)
-- Touch functionality of Click Wheel (if wireteam accepts my request for constant use output of EGP)
+- Proper touch functionality of Click Wheel (wireteam denied request, ugly code in place until they change their minds)
 - Games (maybe)
 - Build instructions/functional diagram (after full completion)
 
